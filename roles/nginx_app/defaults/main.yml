@@ -1,0 +1,12 @@
+nginx_version: "1.18.0-6ubuntu14.7"
+nginx_user: "www"
+nginx_web_root: "/var/www/html"
+
+nginx_listen_port: 80
+nginx_server_name: "_"
+nginx_access_log: "/var/log/nginx/access.log"
+nginx_error_log: "/var/log/nginx/error.log"
+
+release_version: "v1.0.0"
+
+replica_count: 1
