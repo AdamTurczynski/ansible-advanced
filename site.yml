@@ -4,3 +4,6 @@
 
   roles:
     - nginx_app
+    
+  vars_files:
+    - roles/nginx_app/vars/auth.yml
