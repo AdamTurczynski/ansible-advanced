@@ -43,6 +43,16 @@
     content: "{{ htpasswd_content }}"
     dest: /etc/nginx/.htpasswd
     owner: root
-    group: root
+    group: "{{ nginx_user }}"
     mode: "0640"
+  notify: restart nginx
+
+- name: Deploy index.html with variable
+  tags: content
+  template:
+      src: index.html.j2
+      dest: "{{ nginx_web_root }}/index.html"
+      owner: "{{ nginx_user }}"
+      group: "{{ nginx_user }}"
+      mode: "0644"
   notify: restart nginx

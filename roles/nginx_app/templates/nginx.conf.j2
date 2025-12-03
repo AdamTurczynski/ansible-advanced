@@ -9,8 +9,11 @@ http {
     access_log {{ nginx_access_log }};
     error_log {{ nginx_error_log }};
 
+    sendfile on;
+
+    {% for i in range(replica_count) %}
     server {
-        listen {{ nginx_listen_port }};
+        listen {{ nginx_listen_port + i }};
         server_name {{ nginx_server_name }};
 
         root {{ nginx_web_root }};
@@ -18,6 +21,8 @@ http {
 
         auth_basic "Restricted Content";
         auth_basic_user_file /etc/nginx/.htpasswd;
+
     }
+    {% endfor %}
 
 }
