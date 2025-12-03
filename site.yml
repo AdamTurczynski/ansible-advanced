@@ -7,3 +7,47 @@
     
   vars_files:
     - roles/nginx_app/vars/auth.yml
+
+  post_tasks:
+    - name: Healthcheck - check NGINX service status
+      tags: health
+      command: systemctl is-active nginx
+      register: nginx_status
+      changed_when: false
+      failed_when: nginx_status.stdout != "active"
+
+    - name: Healthcheck - check NGINX is listening on base port
+      tags: health
+      shell: ss -tulpn | grep ":{{ nginx_listen_port }}"
+      register: base_port_check
+      changed_when: false
+      failed_when: base_port_check.rc != 0
+
+    - name: Healthcheck - check NGINX replicas are listening on their ports
+      tags: health
+      shell: ss -tulpn | grep ":{{ nginx_listen_port + item }}"
+      loop: "{{ range(0, replica_count) | list }}"
+      register: port_checks
+      changed_when: false
+
+    - name: Assert - replicas must be listening on all ports
+      tags: health
+      assert:
+        that:
+          - "'LISTEN' in item.stdout"
+        fail_msg: "Replica on port {{ nginx_listen_port + item.item }} is NOT listening!"
+      loop: "{{ port_checks.results }}"
+
+    - name: Assert - release_version must be defined
+      tags: health
+      assert:
+        that:
+          - release_version | default('', true) | length > 0
+        fail_msg: "release_version is NOT defined!"
+
+    - name: Assert - replica_count must be at least 1
+      tags: health
+      assert:
+        that:
+          - replica_count | int >= 1
+        fail_msg: "replica_count must be at least 1"
