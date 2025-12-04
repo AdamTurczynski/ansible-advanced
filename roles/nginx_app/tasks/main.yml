@@ -15,6 +15,7 @@
   tags: install
   user:
     name: "{{ nginx_user }}"
+    system: true
     state: present
 
 - name: Ensure web root exists
